@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'services/supabase_service.dart';
@@ -9,6 +10,12 @@ import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // .env dosyasını yükle
+  await dotenv.load(fileName: ".env");
+  
+  print("Loaded Supabase URL: ${dotenv.env['SUPABASE_URL']}");
+  print("Loaded Supabase Key length: ${dotenv.env['SUPABASE_KEY']?.length}");
   
   // Supabase'i başlat
   await SupabaseService.initialize();

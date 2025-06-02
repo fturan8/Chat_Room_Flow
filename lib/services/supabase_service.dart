@@ -1,30 +1,39 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/user_model.dart';
 import '../models/chat_room_model.dart';
 import '../models/message_model.dart';
 import 'package:flutter/widgets.dart';
 
 class SupabaseService {
-  // Supabase için URL ve Anahtar değerlerini burada tanımlayın
-  static const String supabaseUrl = 'https://rypmtmncokdzvhfmxrau.supabase.co';
-  static const String supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cG10bW5jb2tkenZoZm14cmF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2OTQ5MDcsImV4cCI6MjA2NDI3MDkwN30._PXofq-x_5gEBHT11RSitkJhe4ALpdbFbWaxIfT1zeE';
+  // Supabase için URL ve Anahtar değerlerini .env dosyasından al
+  static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? 'https://rypmtmncokdzvhfmxrau.supabase.co';
+  static String get supabaseKey => dotenv.env['SUPABASE_KEY'] ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cG10bW5jb2tkenZoZm14cmF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2OTQ5MDcsImV4cCI6MjA2NDI3MDkwN30._PXofq-x_5gEBHT11RSitkJhe4ALpdbFbWaxIfT1zeE';
 
   static Future<void> initialize() async {
-    await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseKey,
-      realtimeClientOptions: const RealtimeClientOptions(
-        eventsPerSecond: 40,
-        timeout: Duration(seconds: 10), // Bağlantı zaman aşımını kısa tut
-      ),
-    );
+    print("Initializing Supabase with URL: $supabaseUrl");
+    print("Key length: ${supabaseKey.length}");
     
-    // Realtime kanallarını başlat
-    await _initializeRealtimeChannels();
-    
-    print('Supabase initialized with realtime options');
+    try {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        anonKey: supabaseKey,
+        realtimeClientOptions: const RealtimeClientOptions(
+          eventsPerSecond: 40,
+          timeout: Duration(seconds: 10), // Bağlantı zaman aşımını kısa tut
+        ),
+      );
+      
+      // Realtime kanallarını başlat
+      await _initializeRealtimeChannels();
+      
+      print('Supabase initialized with realtime options');
+    } catch (e) {
+      print('Supabase initialization error: $e');
+      rethrow;
+    }
   }
   
   // Realtime kanallarını önceden başlat
